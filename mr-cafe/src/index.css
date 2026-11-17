@@ -1,0 +1,32 @@
+
+@import "tailwindcss";
+
+:root {
+  font-family: 'DM Sans', sans-serif;
+  color: #3E2A23;
+  background: #D8C9B5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+button {
+  cursor: pointer;
+}
+
+:root {
+  --warm-mineral: #D8C9B5;
+  --smoky-blue: #5B6E7F;
+  --dark-cocoa: #3E2A23;
+  --surface: #F3ECE3;
+  --white: #FFFFFF;
+}
