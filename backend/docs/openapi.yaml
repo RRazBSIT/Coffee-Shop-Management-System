@@ -1,0 +1,284 @@
+openapi: 3.0.3
+
+info:
+  title: MR Cafe API
+  version: 1.0.0
+  description: |
+    MR Cafe Coffee Shop Management System API.
+    Includes customer ordering, POS, inventory,
+    payments, kitchen management and authentication.
+
+servers:
+  - url: http://localhost:5000/api
+    description: Local development server
+
+tags:
+  - name: Health
+  - name: Authentication
+  - name: Dashboard
+  - name: Products
+  - name: Orders
+  - name: Inventory
+  - name: Payments
+  - name: Customers
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Check API and database status
+      responses:
+        '200':
+          description: API is running
+
+  /auth/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register a customer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fullName
+                - email
+                - password
+              properties:
+                fullName:
+                  type: string
+                  example: Juan Dela Cruz
+                email:
+                  type: string
+                  example: juan@example.com
+                phone:
+                  type: string
+                  example: "09123456789"
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123
+      responses:
+        '201':
+          description: Customer registered successfully
+        '400':
+          description: Invalid registration information
+        '409':
+          description: Email already registered
+
+  /auth/customer/login:
+    post:
+      tags:
+        - Authentication
+      summary: Customer login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  example: juan@example.com
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123
+      responses:
+        '200':
+          description: Customer login successful
+        '401':
+          description: Invalid credentials
+
+  /auth/staff/login:
+    post:
+      tags:
+        - Authentication
+      summary: Admin or Cashier login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - username
+                - password
+              properties:
+                username:
+                  type: string
+                  example: admin
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123
+      responses:
+        '200':
+          description: Staff login successful
+        '401':
+          description: Invalid credentials
+
+  /auth/staff:
+    post:
+      tags:
+        - Authentication
+      summary: Create a Cashier account
+      description: Only authenticated Admin users can create Cashier accounts.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - firstName
+                - lastName
+                - username
+                - password
+              properties:
+                firstName:
+                  type: string
+                  example: Maria
+                lastName:
+                  type: string
+                  example: Santos
+                phone:
+                  type: string
+                  example: "09123456789"
+                username:
+                  type: string
+                  example: cashier01
+                password:
+                  type: string
+                  format: password
+                  example: SecurePass123
+      responses:
+        '201':
+          description: Cashier account created
+        '400':
+          description: Invalid information
+        '401':
+          description: Authentication required
+        '403':
+          description: Admin access required
+        '409':
+          description: Username already exists
+
+  /dashboard/overview:
+    get:
+      tags:
+        - Dashboard
+      summary: Get dashboard overview
+      description: |
+        Retrieves the Admin Dashboard statistics,
+        today's order summary, weekly sales and
+        five most recent non-cancelled orders.
+        Only authenticated Admin users can access this endpoint.
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Dashboard overview retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: Dashboard overview retrieved successfully.
+                  data:
+                    type: object
+                    properties:
+                      summary:
+                        type: object
+                        properties:
+                          todayRevenue:
+                            type: number
+                            example: 2500
+                          totalOrders:
+                            type: number
+                            example: 25
+                          productsSold:
+                            type: number
+                            example: 48
+                          pendingOrders:
+                            type: number
+                            example: 3
+                      orderSummary:
+                        type: object
+                        properties:
+                          pending:
+                            type: integer
+                            example: 3
+                          preparing:
+                            type: integer
+                            example: 5
+                          ready:
+                            type: integer
+                            example: 2
+                          completed:
+                            type: integer
+                            example: 15
+                      weeklySales:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            day:
+                              type: string
+                              example: Mon
+                            revenue:
+                              type: number
+                              example: 1200
+                      recentOrders:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            orderId:
+                              type: integer
+                              example: 1
+                            orderNumber:
+                              type: string
+                              example: MC-0001
+                            customerName:
+                              type: string
+                              example: Juan Dela Cruz
+                            totalAmount:
+                              type: number
+                              example: 250
+                            status:
+                              type: string
+                              example: completed
+                            orderType:
+                              type: string
+                              example: dine_in
+                            createdAt:
+                              type: string
+                              format: date-time
+        '401':
+          description: Authentication token is required or invalid
+        '403':
+          description: Admin access required
+        '500':
+          description: Internal server error
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
