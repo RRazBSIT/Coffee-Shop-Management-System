@@ -56,3 +56,4 @@ export async function listInventoryMovementsController(req: Request, res: Respon
     return res.json({ success: true, data });
   } catch (error) { return sendError(res, error); }
 }
+

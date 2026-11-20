@@ -9,7 +9,9 @@ import {
 import './App.css';
 import OrdersPage from './pages/OrdersPage';
 import ProductsPage from './pages/ProductsPage';
-import InventoryPage from './pages/InventoryPage';
+import InventoryPage from './pages/InventoryPage'
+import EmployeesPage from './pages/EmployeesPage';
+import CustomersPage from './pages/CustomersPage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -453,6 +455,10 @@ function App() {
             </>
           ) : activePage === 'Orders' ? (
             <OrdersPage token={token} />
+            ) : activePage === 'Customers' ? (
+  <CustomersPage token={token} />
+            ) : activePage === 'Employees' ? (
+  <EmployeesPage token={token} />
           ) : activePage === 'Products' ? (
             <ProductsPage token={token} />
           ) : activePage === 'Inventory' ? (

@@ -57,11 +57,18 @@ export default function InventoryPage({ token }: { token: string }) {
     setIngredientForm({ ingredientName: '', unit: 'pcs', currentStock: '0', reorderLevel: '0', isActive: true });
     setError(''); setModal('ingredient');
   };
-  const openEditIngredient = (item: Ingredient) => {
-    setEditing(item);
-    setIngredientForm({ ingredientName: item.ingredientName, unit: item.unit, currentStock: String(item.currentStock), reorderLevel: String(item.reorderLevel), isActive: item.isActive });
-    setError(''); setModal('ingredient');
-  };
+ const openEditIngredient = (item: Ingredient) => {
+  setEditing(item);
+  setIngredientForm({
+    ingredientName: item.ingredientName,
+    unit: item.unit,
+    currentStock: String(item.currentStock),
+    reorderLevel: String(item.reorderLevel),
+    isActive: Boolean(item.isActive)
+  });
+  setError('');
+  setModal('ingredient');
+};
   const openMovement = (item?: Ingredient) => {
     setMovementForm({ ingredientId: item ? String(item.ingredientId) : (ingredients[0] ? String(ingredients[0].ingredientId) : ''), movementType: 'stock_in', quantity: '', adjustmentDirection: 'increase', notes: '' });
     setError(''); setModal('movement');

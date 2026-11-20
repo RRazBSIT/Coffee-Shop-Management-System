@@ -9,6 +9,8 @@ import dashboardRoutes from './routes/dashboard.routes';
 import ordersRoutes from './routes/orders.routes';
 import productRoutes from './routes/products.routes';
 import inventoryRoutes from './routes/inventory.routes';
+import employeeRoutes from './routes/employees.routes';
+import customerRoutes from './routes/customers.routes';
 
 const app = express();
 
@@ -28,6 +30,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/orders', ordersRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/inventory', inventoryRoutes);
+app.use('/api/employees', employeeRoutes);
+app.use('/api/customers', customerRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Endpoint not found' });
