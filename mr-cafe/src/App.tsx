@@ -9,6 +9,7 @@ import {
 import './App.css';
 import OrdersPage from './pages/OrdersPage';
 import ProductsPage from './pages/ProductsPage';
+import InventoryPage from './pages/InventoryPage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -454,6 +455,8 @@ function App() {
             <OrdersPage token={token} />
           ) : activePage === 'Products' ? (
             <ProductsPage token={token} />
+          ) : activePage === 'Inventory' ? (
+            <InventoryPage token={token} />
           ) : (
             <section className="panel placeholder-panel">
               <div className="placeholder-icon"><Coffee size={30} /></div>
