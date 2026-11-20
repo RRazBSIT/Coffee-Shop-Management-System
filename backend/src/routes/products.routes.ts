@@ -1,5 +1,6 @@
 
 import { Router } from 'express';
+
 import {
   authenticateToken,
   authorizeRoles
@@ -16,30 +17,30 @@ import {
 
 const router = Router();
 
-router.use(
-  authenticateToken,
-  authorizeRoles('admin', 'cashier')
-);
-
+// PUBLIC CATALOG
+// Customers can browse categories and products without staff login.
 router.get('/categories', categoriesController);
 router.get('/', listProductsController);
 router.get('/:id', getProductController);
 
-// Only Admin can create, edit, or change product availability.
+// ADMIN ONLY: Product management
 router.post(
   '/',
+  authenticateToken,
   authorizeRoles('admin'),
   createProductController
 );
 
 router.put(
   '/:id',
+  authenticateToken,
   authorizeRoles('admin'),
   updateProductController
 );
 
 router.patch(
   '/:id/availability',
+  authenticateToken,
   authorizeRoles('admin'),
   productAvailabilityController
 );

@@ -12,6 +12,12 @@ import ProductsPage from './pages/ProductsPage';
 import InventoryPage from './pages/InventoryPage'
 import EmployeesPage from './pages/EmployeesPage';
 import CustomersPage from './pages/CustomersPage';
+import { Routes, Route, Navigate } from 'react-router-dom';
+import CustomerLayout from './customer/layouts/CustomerLayout';
+import CustomerLogin from './customer/pages/CustomerLogin';
+import CustomerRegister from './customer/pages/CustomerRegister';
+import CustomerHome from './customer/pages/CustomerHome';
+import CustomerMenu from './customer/pages/CustomerMenu';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -55,7 +61,7 @@ const getLastSevenDays = () => {
   return days;
 };
 
-function App() {
+function StaffApp() {
   const [staff, setStaff] = useState<Staff | null>(() => {
     const saved = sessionStorage.getItem('mrCafeUser');
     return saved ? JSON.parse(saved) : null;
@@ -479,6 +485,44 @@ function App() {
         </div>
       </main>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <Routes>
+      {/* STAFF LOGIN AND DASHBOARD */}
+      <Route path="/" element={<StaffApp />} />
+
+      {/* CUSTOMER PORTAL */}
+      <Route path="/customer" element={<CustomerLayout />}>
+        <Route
+          index
+          element={<Navigate to="login" replace />}
+        />
+<Route path="menu" element={<CustomerMenu />} />
+        <Route
+          path="login"
+          element={<CustomerLogin />}
+        />
+
+        <Route
+          path="register"
+          element={<CustomerRegister />}
+        />
+
+        <Route
+          path="home"
+          element={<CustomerHome />}
+        />
+      </Route>
+
+      {/* INVALID ROUTES */}
+      <Route
+        path="*"
+        element={<Navigate to="/" replace />}
+      />
+    </Routes>
   );
 }
 
