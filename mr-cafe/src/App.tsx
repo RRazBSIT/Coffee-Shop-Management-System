@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Coffee, LayoutDashboard, ShoppingCart, Package,
   Users, ClipboardList, BarChart3, Settings, LogOut,
@@ -14,6 +14,40 @@ type Staff = {
   username: string;
   roleName: 'admin' | 'cashier';
   employeeId?: number;
+};
+
+type DashboardOverview = {
+  summary: { todayRevenue: number; totalOrders: number; productsSold: number; pendingOrders: number };
+  orderSummary: { pending: number; preparing: number; ready: number; completed: number };
+  weeklySales: Array<{ day: string; revenue: number }>;
+  recentOrders: Array<{
+    orderId: number; orderNumber: string; customerName: string;
+    totalAmount: number; status: string; orderType: string; createdAt: string;
+  }>;
+};
+
+const emptyDashboard: DashboardOverview = {
+  summary: { todayRevenue: 0, totalOrders: 0, productsSold: 0, pendingOrders: 0 },
+  orderSummary: { pending: 0, preparing: 0, ready: 0, completed: 0 },
+  weeklySales: [],
+  recentOrders: []
+};
+
+const formatCurrency = (amount: number) =>
+  new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(Number(amount) || 0);
+
+const formatStatus = (status: string) =>
+  status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+
+const getLastSevenDays = () => {
+  const days: Array<{ day: string; dateKey: string }> = [];
+  const today = new Date();
+  for (let offset = 6; offset >= 0; offset -= 1) {
+    const date = new Date(today);
+    date.setDate(today.getDate() - offset);
+    days.push({ day: date.toLocaleDateString('en-US', { weekday: 'short' }), dateKey: date.toISOString().slice(0, 10) });
+  }
+  return days;
 };
 
 function App() {
@@ -33,6 +67,33 @@ function App() {
   const [error, setError] = useState('');
   const [activePage, setActivePage] = useState('Dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  const [dashboard, setDashboard] = useState<DashboardOverview>(emptyDashboard);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [dashboardError, setDashboardError] = useState('');
+
+  const fetchDashboard = async () => {
+    if (!token || staff?.roleName !== 'admin') return;
+    setDashboardLoading(true);
+    setDashboardError('');
+    try {
+      const response = await fetch(`${API_URL}/dashboard/overview`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${token}`, Accept: 'application/json' }
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.message || 'Unable to load dashboard data.');
+      setDashboard(result.data || emptyDashboard);
+    } catch (err) {
+      setDashboardError(err instanceof Error ? err.message : 'Unable to connect to the dashboard API.');
+    } finally {
+      setDashboardLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (staff?.roleName === 'admin' && token) void fetchDashboard();
+  }, [staff, token]);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -196,22 +257,7 @@ function App() {
         { name: 'Products', icon: Coffee }
       ];
 
-  const sampleOrders = [
-    { id: '#ORD-001', customer: 'Alex Morgan', items: 'Iced Latte, Croissant', total: '₱245.00', status: 'Preparing' },
-    { id: '#ORD-002', customer: 'Jamie Lee', items: 'Cappuccino, Brownie', total: '₱190.00', status: 'Ready' },
-    { id: '#ORD-003', customer: 'Taylor Cruz', items: 'Spanish Latte', total: '₱150.00', status: 'Completed' },
-    { id: '#ORD-004', customer: 'Sam Rivera', items: 'Americano, Sandwich', total: '₱220.00', status: 'Preparing' }
-  ];
 
-  const sales = [
-    { day: 'Mon', value: 45 },
-    { day: 'Tue', value: 68 },
-    { day: 'Wed', value: 52 },
-    { day: 'Thu', value: 82 },
-    { day: 'Fri', value: 65 },
-    { day: 'Sat', value: 96 },
-    { day: 'Sun', value: 74 }
-  ];
 
   return (
     <div className="dashboard-layout">
@@ -294,29 +340,47 @@ function App() {
                 <div className="date-chip"><Clock size={15} /> Today's Overview</div>
               </div>
 
-              <section className="stats-grid">
-                <article className="stat-card revenue-card">
-                  <div className="stat-top"><span>Today's Revenue</span><span className="stat-icon"><PhilippinePeso size={19} /></span></div>
-                  <h3>₱12,850.00</h3>
-                  <div className="stat-foot"><TrendingUp size={15} /> +12.5% <span>vs. yesterday</span></div>
-                </article>
-                <article className="stat-card">
-                  <div className="stat-top"><span>Total Orders</span><span className="stat-icon"><ShoppingCart size={19} /></span></div>
-                  <h3>86</h3>
-                  <div className="stat-foot"><TrendingUp size={15} /> +8.2% <span>vs. yesterday</span></div>
-                </article>
-                <article className="stat-card">
-                  <div className="stat-top"><span>Products Sold</span><span className="stat-icon"><Coffee size={19} /></span></div>
-                  <h3>142</h3>
-                  <div className="stat-foot muted-foot">Across all orders today</div>
-                </article>
-                <article className="stat-card">
-                  <div className="stat-top"><span>Pending Orders</span><span className="stat-icon"><ChefHat size={19} /></span></div>
-                  <h3>12</h3>
-                  <div className="stat-foot muted-foot">Requires attention</div>
-                </article>
-              </section>
+              {staff.roleName === 'admin' ? (
+                <>
+                  {dashboardError && (
+                    <div className="login-error" role="alert">
+                      {dashboardError}{' '}
+                      <button type="button" className="text-action" onClick={() => void fetchDashboard()}>Try again</button>
+                    </div>
+                  )}
+                  <section className="stats-grid" aria-busy={dashboardLoading}>
+                    <article className="stat-card revenue-card">
+                      <div className="stat-top"><span>Today's Revenue</span><span className="stat-icon"><PhilippinePeso size={19} /></span></div>
+                      <h3>{dashboardLoading ? 'Loading...' : formatCurrency(dashboard.summary.todayRevenue)}</h3>
+                      <div className="stat-foot muted-foot">Paid orders today</div>
+                    </article>
+                    <article className="stat-card">
+                      <div className="stat-top"><span>Total Orders</span><span className="stat-icon"><ShoppingCart size={19} /></span></div>
+                      <h3>{dashboardLoading ? '...' : dashboard.summary.totalOrders}</h3>
+                      <div className="stat-foot muted-foot">Orders created today</div>
+                    </article>
+                    <article className="stat-card">
+                      <div className="stat-top"><span>Products Sold</span><span className="stat-icon"><Coffee size={19} /></span></div>
+                      <h3>{dashboardLoading ? '...' : dashboard.summary.productsSold}</h3>
+                      <div className="stat-foot muted-foot">From paid orders today</div>
+                    </article>
+                    <article className="stat-card">
+                      <div className="stat-top"><span>Pending Orders</span><span className="stat-icon"><ChefHat size={19} /></span></div>
+                      <h3>{dashboardLoading ? '...' : dashboard.summary.pendingOrders}</h3>
+                      <div className="stat-foot muted-foot">Requires attention</div>
+                    </article>
+                  </section>
+                </>
+              ) : (
+                <section className="panel placeholder-panel">
+                  <div className="placeholder-icon"><LayoutDashboard size={30} /></div>
+                  <h2>Cashier Dashboard</h2>
+                  <p>The live overview is currently available to Admin accounts.</p>
+                  <span>Cashier-specific dashboard information can be connected through a separate staff endpoint.</span>
+                </section>
+              )}
 
+              {staff.roleName === 'admin' && (
               <section className="dashboard-grid">
                 <article className="panel sales-panel">
                   <div className="panel-heading">
@@ -324,18 +388,21 @@ function App() {
                     <span className="panel-period">This Week</span>
                   </div>
                   <div className="chart-summary">
-                    <strong>₱48,250.00</strong>
-                    <span><TrendingUp size={14} /> 10.8%</span>
+                    <strong>{formatCurrency(dashboard.weeklySales.reduce((sum, item) => sum + Number(item.revenue || 0), 0))}</strong>
+                    <span>Last 7 days</span>
                   </div>
                   <div className="bar-chart">
-                    {sales.map((item) => (
-                      <div className="bar-column" key={item.day}>
-                        <div className="bar-track">
-                          <div className="bar-fill" style={{ height: `${item.value}%` }} />
+                    {getLastSevenDays().map((dayItem) => {
+                      const revenue = Number(dashboard.weeklySales.find((item) => item.day === dayItem.day)?.revenue || 0);
+                      const maxRevenue = Math.max(1, ...dashboard.weeklySales.map((item) => Number(item.revenue || 0)));
+                      const height = revenue > 0 ? Math.max(4, (revenue / maxRevenue) * 100) : 0;
+                      return (
+                        <div className="bar-column" key={dayItem.dateKey}>
+                          <div className="bar-track"><div className="bar-fill" style={{ height: `${height}%` }} /></div>
+                          <span>{dayItem.day}</span>
                         </div>
-                        <span>{item.day}</span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </article>
 
@@ -343,13 +410,16 @@ function App() {
                   <div className="panel-heading">
                     <div><h3>Order Summary</h3><p>Today's order status</p></div>
                   </div>
-                  <div className="order-summary-row"><span><i className="status-dot preparing" /> Preparing</span><strong>12</strong></div>
-                  <div className="order-summary-row"><span><i className="status-dot ready" /> Ready</span><strong>8</strong></div>
-                  <div className="order-summary-row"><span><i className="status-dot completed" /> Completed</span><strong>66</strong></div>
-                  <div className="summary-total"><span>Total Orders</span><strong>86</strong></div>
+                  <div className="order-summary-row"><span><i className="status-dot pending" /> Pending</span><strong>{dashboard.orderSummary.pending}</strong></div>
+                  <div className="order-summary-row"><span><i className="status-dot preparing" /> Preparing</span><strong>{dashboard.orderSummary.preparing}</strong></div>
+                  <div className="order-summary-row"><span><i className="status-dot ready" /> Ready</span><strong>{dashboard.orderSummary.ready}</strong></div>
+                  <div className="order-summary-row"><span><i className="status-dot completed" /> Completed</span><strong>{dashboard.orderSummary.completed}</strong></div>
+                  <div className="summary-total"><span>Total Orders</span><strong>{dashboard.summary.totalOrders}</strong></div>
                 </article>
               </section>
+              )}
 
+              {staff.roleName === 'admin' && (
               <section className="panel orders-panel">
                 <div className="panel-heading">
                   <div><h3>Recent Orders</h3><p>Latest transactions from your café</p></div>
@@ -357,21 +427,26 @@ function App() {
                 </div>
                 <div className="table-wrap">
                   <table>
-                    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>ORDER ITEMS</th><th>TOTAL</th><th>STATUS</th></tr></thead>
+                    <thead><tr><th>ORDER ID</th><th>CUSTOMER</th><th>ORDER TYPE</th><th>TOTAL</th><th>STATUS</th></tr></thead>
                     <tbody>
-                      {sampleOrders.map((order) => (
-                        <tr key={order.id}>
-                          <td className="order-id">{order.id}</td>
-                          <td>{order.customer}</td>
-                          <td>{order.items}</td>
-                          <td className="order-total">{order.total}</td>
-                          <td><span className={`order-status ${order.status.toLowerCase()}`}>{order.status}</span></td>
+                      {dashboardLoading ? (
+                        <tr><td colSpan={5}>Loading recent orders...</td></tr>
+                      ) : dashboard.recentOrders.length === 0 ? (
+                        <tr><td colSpan={5}>No recent orders found.</td></tr>
+                      ) : dashboard.recentOrders.map((order) => (
+                        <tr key={order.orderId}>
+                          <td className="order-id">{order.orderNumber}</td>
+                          <td>{order.customerName}</td>
+                          <td>{formatStatus(order.orderType.replace('_', ' '))}</td>
+                          <td className="order-total">{formatCurrency(order.totalAmount)}</td>
+                          <td><span className={`order-status ${order.status.toLowerCase()}`}>{formatStatus(order.status)}</span></td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
                 </div>
               </section>
+              )}
             </>
           ) : (
             <section className="panel placeholder-panel">
