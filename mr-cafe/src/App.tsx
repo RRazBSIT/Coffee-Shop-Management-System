@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 import {
   Coffee, LayoutDashboard, ShoppingCart, Package,
   Users, ClipboardList, BarChart3, Settings, LogOut,
-  Bell, Search, Menu, X, TrendingUp, PhilippinePeso,
-  Clock, CheckCircle2, ChefHat, Eye, EyeOff
+  Bell, Menu, X, PhilippinePeso,
+  Clock, ChefHat, Eye, EyeOff
 } from 'lucide-react';
 import './App.css';
+import OrdersPage from './pages/OrdersPage';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -448,6 +449,8 @@ function App() {
               </section>
               )}
             </>
+          ) : activePage === 'Orders' ? (
+            <OrdersPage token={token} />
           ) : (
             <section className="panel placeholder-panel">
               <div className="placeholder-icon"><Coffee size={30} /></div>

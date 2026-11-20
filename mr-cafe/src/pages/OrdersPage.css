@@ -1,0 +1,37 @@
+.orders-page { display: grid; gap: 18px; color: var(--dark-cocoa, #3E2A23); }
+.orders-page-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; }
+.orders-page-heading h2 { margin:0 0 5px; font-size:22px; font-weight:600; }
+.orders-page-heading p { margin:0; color:#8A7465; font-size:13px; }
+.orders-refresh,.orders-toolbar select,.orders-pagination button { border:1px solid #E6DACE; background:#fff; color:#5B6E7F; border-radius:9px; padding:10px 13px; font:inherit; font-size:13px; }
+.orders-refresh { display:flex; align-items:center; gap:8px; cursor:pointer; }
+.orders-toolbar { display:flex; gap:12px; flex-wrap:wrap; }
+.orders-search { display:flex; align-items:center; gap:9px; flex:1; min-width:220px; padding:0 12px; border:1px solid #E6DACE; border-radius:9px; background:#fff; color:#8A7465; }
+.orders-search input { width:100%; border:0; outline:0; padding:11px 0; color:#3E2A23; background:transparent; font:inherit; font-size:13px; }
+.orders-toolbar select { min-width:145px; }
+.orders-alert { border:1px solid #E7B7A9; background:#FFF4F0; color:#984B39; border-radius:9px; padding:12px 14px; font-size:13px; }
+.orders-table-card { background:#fff; border:1px solid #E8DED4; border-radius:12px; overflow:hidden; }
+.orders-table-scroll { overflow-x:auto; }
+.orders-table { width:100%; border-collapse:collapse; min-width:950px; font-size:12px; }
+.orders-table th { text-align:left; padding:14px 13px; background:#F5F0EA; color:#8B7668; font-size:10px; letter-spacing:.08em; white-space:nowrap; }
+.orders-table td { padding:14px 13px; border-bottom:1px solid #F0E8E0; vertical-align:middle; }
+.orders-number,.orders-money { font-weight:700; color:#3E2A23; white-space:nowrap; }
+.orders-status { display:inline-flex; border-radius:30px; padding:5px 9px; font-size:11px; font-weight:600; white-space:nowrap; }
+.status-pending { background:#F7EEDB; color:#92713C; } .status-preparing { background:#F4E8D9; color:#A06D37; } .status-ready { background:#E8EEF2; color:#536C7D; } .status-completed { background:#E8EFE6; color:#617A5C; } .status-cancelled { background:#F5E7E4; color:#9B5A50; }
+.orders-status-select { max-width:130px; border:1px solid #E6DACE; border-radius:7px; padding:7px; color:#5B6E7F; background:#fff; font-size:11px; }
+.orders-view-button { border:0; background:#F4EEE7; color:#5B6E7F; border-radius:7px; padding:7px; display:inline-flex; cursor:pointer; }
+.orders-empty { text-align:center; padding:35px!important; color:#927F71; }
+.orders-pagination { display:flex; justify-content:space-between; align-items:center; padding:12px 15px; color:#8A7465; font-size:12px; }
+.orders-pagination div { display:flex; gap:8px; }
+.orders-pagination button { display:flex; align-items:center; gap:5px; cursor:pointer; }
+.orders-pagination button:disabled,.orders-refresh:disabled { opacity:.45; cursor:not-allowed; }
+.orders-modal-backdrop { position:fixed; inset:0; z-index:1000; background:#241A16A8; display:grid; place-items:center; padding:20px; }
+.orders-modal { width:min(620px,100%); max-height:85vh; overflow:auto; position:relative; background:#FCF9F5; border-radius:15px; padding:25px; box-shadow:0 20px 70px #0003; }
+.orders-modal-close { position:absolute; right:17px; top:17px; border:0; background:#EEE5DA; border-radius:8px; padding:7px; display:flex; cursor:pointer; color:#3E2A23; }
+.orders-modal-heading span { color:#A17E61; font-size:10px; letter-spacing:.12em; font-weight:700; }
+.orders-modal-heading h2 { margin:7px 0; font-size:22px; }
+.orders-modal-heading p { margin:0 0 20px; color:#8A7465; font-size:13px; }
+.orders-detail-lines { border-top:1px solid #E8DED4; }
+.orders-detail-line { display:flex; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid #E8DED4; font-size:13px; }
+.orders-detail-line div { display:grid; gap:5px; }.orders-detail-line span { color:#927F71; font-size:11px; }
+.orders-detail-total { display:grid; grid-template-columns:1fr auto; gap:9px; padding:16px 0; font-size:13px; }.orders-detail-total span { color:#8A7465; }.orders-detail-total strong { text-align:right; }.orders-detail-history { border-top:1px solid #E8DED4; padding-top:14px; }.orders-detail-history h3 { font-size:14px; }.orders-detail-history p { font-size:11px; color:#8A7465; }
+@media (max-width:700px) { .orders-page-heading { align-items:flex-start; } .orders-toolbar { display:grid; grid-template-columns:1fr 1fr; } .orders-search { grid-column:1/-1; } .orders-toolbar select { min-width:0; width:100%; } .orders-pagination { gap:10px; align-items:flex-start; flex-direction:column; } }
