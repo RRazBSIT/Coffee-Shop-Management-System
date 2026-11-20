@@ -7,7 +7,7 @@ import {swaggerUi,swaggerDocument} from './config/swagger';
 import authRoutes from './routes/auth.routes';
 import dashboardRoutes from './routes/dashboard.routes';
 import ordersRoutes from './routes/orders.routes';
-
+import productRoutes from './routes/products.routes';
 
 const app = express();
 
@@ -25,6 +25,7 @@ app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/orders', ordersRoutes);
+app.use('/api/products', productRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ success: false, message: 'Endpoint not found' });
